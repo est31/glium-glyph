@@ -6,6 +6,7 @@ readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/est31/glium-brush"
 description = "Glium frontend for the glyph-brush text renderer"
+exclude = ["fonts/**"]
 
 [dependencies]
 glium = { version = "0.22", default-features=false}
