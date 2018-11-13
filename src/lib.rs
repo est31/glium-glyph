@@ -39,6 +39,13 @@ struct GlyphVertex {
 implement_vertex!(GlyphVertex, left_top, right_bottom, tex_left_top,
 	tex_right_bottom, color);
 
+#[derive(Copy, Clone, Debug)]
+struct InstanceVertex {
+	v: f32,
+}
+
+implement_vertex!(InstanceVertex, v);
+
 fn rect_to_rect(rect: Rect<u32>) -> glium::Rect {
 	glium::Rect {
 		left: rect.min.x,
@@ -344,7 +351,11 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 			BrushAction::Draw(verts) => {
 				let vertex_buffer = glium::VertexBuffer::new(facade, &verts).unwrap();
 
-				let instances = glium::VertexBuffer::new(facade, &verts[..4]).unwrap();
+				// We only need this so that we have groups of four
+				// instances each which is what the shader expects.
+				// Dunno if there is a nicer way to do this than this
+				// hack.
+				let instances = glium::VertexBuffer::new(facade, &[InstanceVertex{ v : 0.0}; 4]).unwrap();
 
 				let uniforms = uniform! {
 					font_tex: sampler,
