@@ -131,6 +131,7 @@ fn to_vertex(
 	}
 }
 
+/*
 /// Object allowing glyph drawing, containing cache state. Manages glyph positioning cacheing,
 /// glyph draw caching & efficient GPU texture cache updating and re-sizing on demand.
 ///
@@ -183,6 +184,8 @@ fn to_vertex(
 /// The cache for a section will be **cleared** after a
 /// [`GlyphBrush::draw_queued`](#method.draw_queued) call when that section has not been used since
 /// the previous draw call.
+*/
+
 pub struct GlyphBrush<'font, 'a, H :BuildHasher = DefaultSectionHasher> {
 	glyph_brush :glyph_brush::GlyphBrush<'font, H>,
 	params :glium::DrawParameters<'a>,
@@ -253,6 +256,7 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	}
 
 
+	/*
 	/// Draws all queued sections onto a render target.
 	/// See [`queue`](struct.GlyphBrush.html#method.queue).
 	///
@@ -261,11 +265,14 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	/// # Raw usage
 	/// Can also be used with gfx raw render & depth views if necessary. The `Format` must also
 	/// be provided. [See example.](struct.GlyphBrush.html#raw-usage-1)
+	*/
+
 	#[inline]
 	pub fn draw_queued<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, facade :&F, draw_fn :T) {
 		self.draw_queued_with_transform(IDENTITY_MATRIX4, facade, draw_fn)
 	}
 
+	/*
 	/// Draws all queued sections onto a render target, applying a position transform (e.g.
 	/// a projection).
 	/// See [`queue`](struct.GlyphBrush.html#method.queue).
@@ -310,6 +317,8 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	/// # Ok(())
 	/// # }
 	/// ```
+	*/
+
 	pub fn draw_queued_with_transform<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, transform :[[f32; 4]; 4],  facade :&F, draw_fn :T) {
 		let screen_dims = facade.get_framebuffer_dimensions();
 		let mut brush_action;
@@ -379,6 +388,7 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 		self.glyph_brush.fonts()
 	}
 
+	/*
 	/// Adds an additional font to the one(s) initially added on build.
 	///
 	/// Returns a new [`FontId`](struct.FontId.html) to reference this font.
@@ -411,6 +421,8 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	/// # let _ = open_sans_italic_id;
 	/// # }
 	/// ```
+	*/
+
 	pub fn add_font_bytes<'a: 'font, B: Into<SharedBytes<'a>>>(&mut self, font_data: B) -> FontId {
 		self.glyph_brush.add_font_bytes(font_data)
 	}
