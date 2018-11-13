@@ -38,11 +38,10 @@ pub fn main() {
 			..Section::default()
 		});
 
-		glyph_brush.draw_queued(&display, || {
-			let mut target = display.draw();
-			target.clear_color_and_depth((1.0, 1.0, 1.0, 0.0), 1.0);
-			target
-		});
+		let mut target = display.draw();
+		target.clear_color_and_depth((1.0, 1.0, 1.0, 0.0), 1.0);
+		glyph_brush.draw_queued(&display, &mut target);
+		target.finish().unwrap();
 
 		let mut exit = false;
 		events_loop.poll_events(|event| {
