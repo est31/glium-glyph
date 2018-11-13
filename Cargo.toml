@@ -2,6 +2,8 @@
 name = "glium-brush"
 version = "0.1.0"
 authors = ["est31 <MTest31@outlook.com>"]
+readme = "README.md"
+license = "Apache-2.0"
 
 [dependencies]
 glium = { version = "0.22", default-features=false}
