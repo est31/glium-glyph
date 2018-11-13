@@ -192,6 +192,7 @@ pub struct GlyphBrush<'font, 'a, H :BuildHasher = DefaultSectionHasher> {
 	program :Program,
 	texture :Texture2d,
 	index_buffer :glium::index::NoIndices,
+	verts :Vec<GlyphVertex>,
 }
 
 static VERTEX_SHADER :&str = include_str!("shader/vert.glsl");
@@ -220,6 +221,7 @@ impl<'font, 'p> GlyphBrush<'font, 'p> {
 			program,
 			texture,
 			index_buffer,
+			verts : Vec::new(),
 		}
 	}
 }
@@ -268,7 +270,7 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	*/
 
 	#[inline]
-	pub fn draw_queued<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, facade :&F, draw_fn :T) {
+	pub fn draw_queued<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, facade :&F, draw_fn :T) -> Frame {
 		self.draw_queued_with_transform(IDENTITY_MATRIX4, facade, draw_fn)
 	}
 
@@ -319,7 +321,7 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	/// ```
 	*/
 
-	pub fn draw_queued_with_transform<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, transform :[[f32; 4]; 4],  facade :&F, draw_fn :T) {
+	pub fn draw_queued_with_transform<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, transform :[[f32; 4]; 4],  facade :&F, draw_fn :T) -> Frame {
 		let screen_dims = facade.get_framebuffer_dimensions();
 		let mut brush_action;
 		loop {
@@ -358,26 +360,28 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 
 		match brush_action.unwrap() {
 			BrushAction::Draw(verts) => {
-				let vertex_buffer = glium::VertexBuffer::new(facade, &verts).unwrap();
-
-				// We only need this so that we have groups of four
-				// instances each which is what the shader expects.
-				// Dunno if there is a nicer way to do this than this
-				// hack.
-				let instances = glium::VertexBuffer::new(facade, &[InstanceVertex{ v : 0.0}; 4]).unwrap();
-
-				let uniforms = uniform! {
-					font_tex: sampler,
-					transform: transform,
-				};
-
-				// drawing a frame
-				let mut target = draw_fn();
-				target.draw((&instances, vertex_buffer.per_instance().unwrap()), &self.index_buffer, &self.program, &uniforms, &self.params).unwrap();
-				target.finish().unwrap();
+				self.verts = verts;
 			},
 			BrushAction::ReDraw => {},
 		};
+
+		let vertex_buffer = glium::VertexBuffer::new(facade, &self.verts).unwrap();
+
+		// We only need this so that we have groups of four
+		// instances each which is what the shader expects.
+		// Dunno if there is a nicer way to do this than this
+		// hack.
+		let instances = glium::VertexBuffer::new(facade, &[InstanceVertex{ v : 0.0}; 4]).unwrap();
+
+		let uniforms = uniform! {
+			font_tex: sampler,
+			transform: transform,
+		};
+
+		// drawing a frame
+		let mut target = draw_fn();
+		target.draw((&instances, vertex_buffer.per_instance().unwrap()), &self.index_buffer, &self.program, &uniforms, &self.params).unwrap();
+		target
 	}
 
 	/// Returns the available fonts.
