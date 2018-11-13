@@ -255,8 +255,8 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	/// Can also be used with gfx raw render & depth views if necessary. The `Format` must also
 	/// be provided. [See example.](struct.GlyphBrush.html#raw-usage-1)
 	#[inline]
-	pub fn draw_queued<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, facade :&F, draw_fn :T) {
-		self.draw_queued_with_transform(IDENTITY_MATRIX4, facade, draw_fn)
+	pub fn draw_queued<F :Facade + Deref<Target = Context>>(&mut self, facade :&F, f :&mut Frame) {
+		self.draw_queued_with_transform(IDENTITY_MATRIX4, facade, f)
 	}
 
 	/// Draws all queued sections onto a render target, applying a position transform (e.g.
@@ -303,7 +303,7 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	/// # Ok(())
 	/// # }
 	/// ```
-	pub fn draw_queued_with_transform<F :Facade + Deref<Target = Context>, T :Fn() -> Frame>(&mut self, transform :[[f32; 4]; 4],  facade :&F, draw_fn :T) {
+	pub fn draw_queued_with_transform<F :Facade + Deref<Target = Context>>(&mut self, transform :[[f32; 4]; 4],  facade :&F, target :&mut Frame) {
 		let screen_dims = facade.get_framebuffer_dimensions();
 		let mut brush_action;
 		loop {
@@ -352,9 +352,7 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 				};
 
 				// drawing a frame
-				let mut target = draw_fn();
 				target.draw((&instances, vertex_buffer.per_instance().unwrap()), &self.index_buffer, &self.program, &uniforms, &self.params).unwrap();
-				target.finish().unwrap();
 			},
 			BrushAction::ReDraw => {},
 		};
