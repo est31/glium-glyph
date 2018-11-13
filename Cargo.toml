@@ -5,6 +5,7 @@ authors = ["est31 <MTest31@outlook.com>"]
 readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/est31/glium-brush"
+description = "Glium frontend for the glyph-brush text renderer"
 
 [dependencies]
 glium = { version = "0.22", default-features=false}
