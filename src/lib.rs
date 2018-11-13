@@ -192,7 +192,8 @@ pub struct GlyphBrush<'font, 'a, H :BuildHasher = DefaultSectionHasher> {
 	program :Program,
 	texture :Texture2d,
 	index_buffer :glium::index::NoIndices,
-	verts :Vec<GlyphVertex>,
+	vertex_buffer :glium::VertexBuffer<GlyphVertex>,
+	instances :glium::VertexBuffer<InstanceVertex>,
 }
 
 static VERTEX_SHADER :&str = include_str!("shader/vert.glsl");
@@ -215,13 +216,22 @@ impl<'font, 'p> GlyphBrush<'font, 'p> {
 		let (twidth, theight) = glyph_brush.texture_dimensions();
 		let texture = Texture2d::empty(facade, twidth, theight).unwrap();
 		let index_buffer = glium::index::NoIndices(PrimitiveType::TriangleStrip);
+
+		// We only need this so that we have groups of four
+		// instances each which is what the shader expects.
+		// Dunno if there is a nicer way to do this than this
+		// hack.
+		let instances = glium::VertexBuffer::new(facade, &[InstanceVertex{ v : 0.0}; 4]).unwrap();
+		let vertex_buffer = glium::VertexBuffer::empty(facade, 0).unwrap();
+
 		GlyphBrush {
 			glyph_brush,
 			params,
 			program,
 			texture,
 			index_buffer,
-			verts : Vec::new(),
+			vertex_buffer,
+			instances,
 		}
 	}
 }
@@ -360,18 +370,10 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 
 		match brush_action.unwrap() {
 			BrushAction::Draw(verts) => {
-				self.verts = verts;
+				self.vertex_buffer = glium::VertexBuffer::new(facade, &verts).unwrap();
 			},
 			BrushAction::ReDraw => {},
 		};
-
-		let vertex_buffer = glium::VertexBuffer::new(facade, &self.verts).unwrap();
-
-		// We only need this so that we have groups of four
-		// instances each which is what the shader expects.
-		// Dunno if there is a nicer way to do this than this
-		// hack.
-		let instances = glium::VertexBuffer::new(facade, &[InstanceVertex{ v : 0.0}; 4]).unwrap();
 
 		let uniforms = uniform! {
 			font_tex: sampler,
@@ -379,7 +381,8 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 		};
 
 		// drawing a frame
-		frame.draw((&instances, vertex_buffer.per_instance().unwrap()), &self.index_buffer, &self.program, &uniforms, &self.params).unwrap();
+		frame.draw((&self.instances, self.vertex_buffer.per_instance().unwrap()),
+			&self.index_buffer, &self.program, &uniforms, &self.params).unwrap();
 	}
 
 	/// Returns the available fonts.
