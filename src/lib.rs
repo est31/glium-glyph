@@ -205,12 +205,7 @@ impl<'font, 'p> GlyphBrush<'font, 'p> {
 		let program = Program::from_source(facade, VERTEX_SHADER,
 			FRAGMENT_SHADER, None).unwrap();
 		let params = glium::DrawParameters {
-			depth: glium::Depth {
-				test: glium::DepthTest::IfLess,
-				write: true,
-				.. Default::default()
-			},
-			blend: glium::Blend::alpha_blending(),
+			blend :glium::Blend::alpha_blending(),
 			.. Default::default()
 		};
 		let (twidth, theight) = glyph_brush.texture_dimensions();
