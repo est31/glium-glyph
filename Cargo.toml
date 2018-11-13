@@ -1,0 +1,11 @@
+[package]
+name = "glium-brush"
+version = "0.1.0"
+authors = ["est31 <MTest31@outlook.com>"]
+
+[dependencies]
+glium = { version = "0.22", default-features=false}
+glyph_brush = "0.2"
+
+[dev-dependencies]
+glium = "0.22"
