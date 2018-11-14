@@ -1,11 +1,11 @@
 extern crate glium;
-extern crate glium_brush;
+extern crate glium_glyph;
 
 use glium::{glutin, Surface};
 use glium::glutin::{Api, GlProfile, GlRequest};
 
-use glium_brush::GlyphBrush;
-use glium_brush::glyph_brush::{
+use glium_glyph::GlyphBrush;
+use glium_glyph::glyph_brush::{
 	rusttype::Font, Section,
 };
 

@@ -1,11 +1,11 @@
 [package]
-name = "glium-brush"
-version = "0.2.0"
+name = "glium-glyph"
+version = "0.2.2"
 authors = ["est31 <MTest31@outlook.com>"]
 readme = "README.md"
 license = "Apache-2.0"
-repository = "https://github.com/est31/glium-brush"
-description = "Glium frontend for the glyph-brush text renderer"
+repository = "https://github.com/est31/glium-glyph"
+description = "Glium frontend for the glyph-brush text renderer. gfx-glyph with gfx swapped out for glium."
 exclude = ["fonts/**"]
 
 [dependencies]
