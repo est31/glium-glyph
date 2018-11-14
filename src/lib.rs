@@ -1,6 +1,11 @@
 #[macro_use]
 extern crate glium;
+#[macro_use]
 pub extern crate glyph_brush;
+
+mod builder;
+
+pub use builder::GlyphBrushBuilder;
 
 use std::borrow::Cow;
 use std::ops::Deref;
@@ -196,38 +201,9 @@ pub struct GlyphBrush<'font, 'a, H :BuildHasher = DefaultSectionHasher> {
 	instances :glium::VertexBuffer<InstanceVertex>,
 }
 
-static VERTEX_SHADER :&str = include_str!("shader/vert.glsl");
-static FRAGMENT_SHADER :&str = include_str!("shader/frag.glsl");
-
 impl<'font, 'p> GlyphBrush<'font, 'p> {
 	pub fn new<'a :'font, F :Facade, V :Into<Vec<Font<'a>>>>(facade :&F, fonts :V) -> Self {
-		let glyph_brush = glyph_brush::GlyphBrushBuilder::using_fonts(fonts).build();
-		let program = Program::from_source(facade, VERTEX_SHADER,
-			FRAGMENT_SHADER, None).unwrap();
-		let params = glium::DrawParameters {
-			blend :glium::Blend::alpha_blending(),
-			.. Default::default()
-		};
-		let (twidth, theight) = glyph_brush.texture_dimensions();
-		let texture = Texture2d::empty(facade, twidth, theight).unwrap();
-		let index_buffer = glium::index::NoIndices(PrimitiveType::TriangleStrip);
-
-		// We only need this so that we have groups of four
-		// instances each which is what the shader expects.
-		// Dunno if there is a nicer way to do this than this
-		// hack.
-		let instances = glium::VertexBuffer::new(facade, &[InstanceVertex{ v : 0.0}; 4]).unwrap();
-		let vertex_buffer = glium::VertexBuffer::empty(facade, 0).unwrap();
-
-		GlyphBrush {
-			glyph_brush,
-			params,
-			program,
-			texture,
-			index_buffer,
-			vertex_buffer,
-			instances,
-		}
+		GlyphBrushBuilder::using_fonts(fonts).build(facade)
 	}
 }
 
