@@ -2,10 +2,11 @@
 
 [Glium](https://github.com/glium/glium) frontend for the [glyph-brush](https://github.com/alexheretic/glyph-brush) text renderer.
 
-It bases on the [gfx_glyph](https://crates.io/crates/gfx_glyph) crate. While it "works" right now, it's quite WIP atm as some parts of the API are only drafted. I've written it mostly to scratch a personal itch of mine.
+It bases on the [gfx_glyph](https://crates.io/crates/gfx_glyph) crate. While it works, some docs are still missing, and maybe one API call or two. I've written it mostly to scratch a personal itch of mine. If you find something to be missing, file an issue or send me a PR!
 
 TODO:
 
-* add builder struct like the glyph-brush crate has
 * complete code style changes
 * examples and docs are sitll about the gfx-brush crate
+* mode for crisp text rendering (exposing texture interpolation commands send to glium)
+* mode for crisp text rendering (making rusttype [not "alias"](https://gitlab.redox-os.org/redox-os/rusttype/issues/61), might need changes in glyph-brush)
