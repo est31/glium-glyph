@@ -9,7 +9,7 @@ pub use builder::GlyphBrushBuilder;
 
 use std::borrow::Cow;
 use std::ops::Deref;
-use std::hash::BuildHasher;
+use std::hash::{BuildHasher, Hash};
 
 use glium::backend::{Facade, Context};
 use glium::{Surface, Program, Frame};
@@ -19,7 +19,8 @@ use glium::texture::texture2d::Texture2d;
 
 use glyph_brush::rusttype::{Rect, SharedBytes};
 use glyph_brush::{
-	rusttype::{point, Font}, BrushAction, BrushError, DefaultSectionHasher, FontId, VariedSection, GlyphPositioner,
+	rusttype::{point, Font}, BrushAction, BrushError, DefaultSectionHasher,
+	FontId, VariedSection, GlyphPositioner, GlyphCruncher, PositionedGlyphIter,
 };
 
 const IDENTITY_MATRIX4: [[f32; 4]; 4] = [
@@ -408,5 +409,24 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	/// Returns a new [`FontId`](struct.FontId.html) to reference this font.
 	pub fn add_font<'a: 'font>(&mut self, font_data: Font<'a>) -> FontId {
 		self.glyph_brush.add_font(font_data)
+	}
+}
+
+impl<'font, 'l, H :BuildHasher> GlyphCruncher<'font> for GlyphBrush<'font, 'l, H>  {
+	fn pixel_bounds_custom_layout<'a, S, L>(&mut self, section: S, custom_layout: &L)
+			-> Option<Rect<i32>>
+	where
+		L: GlyphPositioner + Hash,
+		S: Into<Cow<'a, VariedSection<'a>>>
+	{
+		self.glyph_brush.pixel_bounds_custom_layout(section, custom_layout)
+	}
+	fn glyphs_custom_layout<'a, 'b, S, L>(&'b mut self, section: S, custom_layout: &L)
+		-> PositionedGlyphIter<'b, 'font>
+	where
+		L: GlyphPositioner + Hash,
+		S: Into<Cow<'a, VariedSection<'a>>>
+	{
+		self.glyph_brush.glyphs_custom_layout(section, custom_layout)
 	}
 }
