@@ -10,7 +10,7 @@ exclude = ["fonts/**"]
 
 [dependencies]
 glium = { version = "0.24", default-features=false}
-glyph_brush = "0.2"
+glyph_brush = "0.4"
 
 [dev-dependencies]
 glium = "0.24"

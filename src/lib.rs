@@ -193,7 +193,7 @@ fn to_vertex(
 */
 
 pub struct GlyphBrush<'font, 'a, H :BuildHasher = DefaultSectionHasher> {
-	glyph_brush :glyph_brush::GlyphBrush<'font, H>,
+	glyph_brush :glyph_brush::GlyphBrush<'font, GlyphVertex, H>,
 	params :glium::DrawParameters<'a>,
 	program :Program,
 	texture :Texture2d,
@@ -357,14 +357,6 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 			&self.index_buffer, &self.program, &uniforms, &self.params).unwrap();
 	}
 
-	/// Returns the available fonts.
-	///
-	/// The `FontId` corresponds to the index of the font data.
-	#[inline]
-	pub fn fonts(&self) -> &[Font<'font>] {
-		self.glyph_brush.fonts()
-	}
-
 	/*
 	/// Adds an additional font to the one(s) initially added on build.
 	///
@@ -428,5 +420,13 @@ impl<'font, 'l, H :BuildHasher> GlyphCruncher<'font> for GlyphBrush<'font, 'l, H
 		S: Into<Cow<'a, VariedSection<'a>>>
 	{
 		self.glyph_brush.glyphs_custom_layout(section, custom_layout)
+	}
+
+	/// Returns the available fonts.
+	///
+	/// The `FontId` corresponds to the index of the font data.
+	#[inline]
+	fn fonts(&self) -> &[Font<'font>] {
+		self.glyph_brush.fonts()
 	}
 }
