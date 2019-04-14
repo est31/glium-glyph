@@ -9,8 +9,8 @@ description = "Glium frontend for the glyph-brush text renderer. gfx-glyph with 
 exclude = ["fonts/**"]
 
 [dependencies]
-glium = { version = "0.23", default-features=false}
+glium = { version = "0.24", default-features=false}
 glyph_brush = "0.2"
 
 [dev-dependencies]
-glium = "0.23"
+glium = "0.24"
