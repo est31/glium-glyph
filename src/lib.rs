@@ -73,15 +73,17 @@ fn update_texture(tex: &Texture2d, rect: Rect<u32>, tex_data: &[u8]) {
 
 #[inline]
 fn to_vertex(
+	screen_dimensions: (u32, u32),
 	glyph_brush::GlyphVertex {
 		mut tex_coords,
 		pixel_coords,
 		bounds,
-		screen_dimensions: (screen_w, screen_h),
 		color,
 		z,
 	}: glyph_brush::GlyphVertex,
 ) -> GlyphVertex {
+	let screen_w = screen_dimensions.0 as f32;
+	let screen_h = screen_dimensions.1 as f32;
 	let gl_bounds = Rect {
 		min: point(
 			2.0 * (bounds.min.x / screen_w - 0.5),
@@ -318,11 +320,12 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 			{
 				let tex = &self.texture;
 				brush_action = self.glyph_brush.process_queued(
-					screen_dims,
 					|rect, tex_data| {
 						update_texture(tex, rect, tex_data);
 					},
-					to_vertex,
+					|v| {
+						to_vertex(screen_dims, v)
+					},
 				);
 			}
 			match brush_action {
