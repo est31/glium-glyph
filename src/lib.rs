@@ -23,13 +23,6 @@ use glyph_brush::{
 	FontId, VariedSection, GlyphPositioner, GlyphCruncher, PositionedGlyphIter,
 };
 
-const IDENTITY_MATRIX4: [[f32; 4]; 4] = [
-	[1.0, 0.0, 0.0, 0.0],
-	[0.0, 1.0, 0.0, 0.0],
-	[0.0, 0.0, 1.0, 0.0],
-	[0.0, 0.0, 0.0, 1.0],
-];
-
 #[derive(Copy, Clone, Debug)]
 struct GlyphVertex {
 	/// screen position
@@ -73,7 +66,6 @@ fn update_texture(tex: &Texture2d, rect: Rect<u32>, tex_data: &[u8]) {
 
 #[inline]
 fn to_vertex(
-	screen_dimensions: (u32, u32),
 	glyph_brush::GlyphVertex {
 		mut tex_coords,
 		pixel_coords,
@@ -82,61 +74,42 @@ fn to_vertex(
 		z,
 	}: glyph_brush::GlyphVertex,
 ) -> GlyphVertex {
-	let screen_w = screen_dimensions.0 as f32;
-	let screen_h = screen_dimensions.1 as f32;
-	let gl_bounds = Rect {
-		min: point(
-			2.0 * (bounds.min.x / screen_w - 0.5),
-			2.0 * (0.5 - bounds.min.y / screen_h),
-		),
-		max: point(
-			2.0 * (bounds.max.x / screen_w - 0.5),
-			2.0 * (0.5 - bounds.max.y / screen_h),
-		),
-	};
+    let gl_bounds = bounds;
 
-	let mut gl_rect = Rect {
-		min: point(
-			2.0 * (pixel_coords.min.x as f32 / screen_w - 0.5),
-			2.0 * (0.5 - pixel_coords.min.y as f32 / screen_h),
-		),
-		max: point(
-			2.0 * (pixel_coords.max.x as f32 / screen_w - 0.5),
-			2.0 * (0.5 - pixel_coords.max.y as f32 / screen_h),
-		),
-	};
+    let mut gl_rect = Rect {
+        min: point(pixel_coords.min.x as f32, pixel_coords.min.y as f32),
+        max: point(pixel_coords.max.x as f32, pixel_coords.max.y as f32),
+    };
 
-	// handle overlapping bounds, modify uv_rect to preserve texture aspect
-	if gl_rect.max.x > gl_bounds.max.x {
-		let old_width = gl_rect.width();
-		gl_rect.max.x = gl_bounds.max.x;
-		tex_coords.max.x = tex_coords.min.x + tex_coords.width() * gl_rect.width() / old_width;
-	}
-	if gl_rect.min.x < gl_bounds.min.x {
-		let old_width = gl_rect.width();
-		gl_rect.min.x = gl_bounds.min.x;
-		tex_coords.min.x = tex_coords.max.x - tex_coords.width() * gl_rect.width() / old_width;
-	}
-	// note: y access is flipped gl compared with screen,
-	// texture is not flipped (ie is a headache)
-	if gl_rect.max.y < gl_bounds.max.y {
-		let old_height = gl_rect.height();
-		gl_rect.max.y = gl_bounds.max.y;
-		tex_coords.max.y = tex_coords.min.y + tex_coords.height() * gl_rect.height() / old_height;
-	}
-	if gl_rect.min.y > gl_bounds.min.y {
-		let old_height = gl_rect.height();
-		gl_rect.min.y = gl_bounds.min.y;
-		tex_coords.min.y = tex_coords.max.y - tex_coords.height() * gl_rect.height() / old_height;
-	}
+    // handle overlapping bounds, modify uv_rect to preserve texture aspect
+    if gl_rect.max.x > gl_bounds.max.x {
+        let old_width = gl_rect.width();
+        gl_rect.max.x = gl_bounds.max.x;
+        tex_coords.max.x = tex_coords.min.x + tex_coords.width() * gl_rect.width() / old_width;
+    }
+    if gl_rect.min.x < gl_bounds.min.x {
+        let old_width = gl_rect.width();
+        gl_rect.min.x = gl_bounds.min.x;
+        tex_coords.min.x = tex_coords.max.x - tex_coords.width() * gl_rect.width() / old_width;
+    }
+    if gl_rect.max.y > gl_bounds.max.y {
+        let old_height = gl_rect.height();
+        gl_rect.max.y = gl_bounds.max.y;
+        tex_coords.max.y = tex_coords.min.y + tex_coords.height() * gl_rect.height() / old_height;
+    }
+    if gl_rect.min.y < gl_bounds.min.y {
+        let old_height = gl_rect.height();
+        gl_rect.min.y = gl_bounds.min.y;
+        tex_coords.min.y = tex_coords.max.y - tex_coords.height() * gl_rect.height() / old_height;
+    }
 
-	GlyphVertex {
-		left_top: [gl_rect.min.x, gl_rect.max.y, z],
-		right_bottom: [gl_rect.max.x, gl_rect.min.y],
-		tex_left_top: [tex_coords.min.x, tex_coords.max.y],
-		tex_right_bottom: [tex_coords.max.x, tex_coords.min.y],
-		color,
-	}
+    GlyphVertex {
+        left_top: [gl_rect.min.x, gl_rect.max.y, z],
+        right_bottom: [gl_rect.max.x, gl_rect.min.y],
+        tex_left_top: [tex_coords.min.x, tex_coords.max.y],
+        tex_right_bottom: [tex_coords.max.x, tex_coords.min.y],
+        color,
+    }
 }
 
 /*
@@ -255,12 +228,21 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 
 	#[inline]
 	pub fn draw_queued<F :Facade + Deref<Target = Context>>(&mut self, facade :&F, frame :&mut Frame) {
-		self.draw_queued_with_transform(IDENTITY_MATRIX4, facade, frame)
+        let dims = facade.get_framebuffer_dimensions();
+        let transform = [
+            [2.0 / (dims.0 as f32), 0.0, 0.0, 0.0],
+            [0.0, 2.0 / (dims.1 as f32), 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [-1.0, -1.0, 0.0, 1.0],
+        ];
+		self.draw_queued_with_transform(transform, facade, frame)
 	}
 
 	/*
 	/// Draws all queued sections onto a render target, applying a position transform (e.g.
-	/// a projection).
+	/// a projection). The transform applies directly to the `screen_position` coordinates from
+    /// queued `Sections`, with the Y axis inverted. Callers must account for the window size in
+    /// this transform.
 	/// See [`queue`](struct.GlyphBrush.html#method.queue).
 	///
 	/// Trims the cache, see [caching behaviour](#caching-behaviour).
@@ -306,7 +288,6 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 	*/
 
 	pub fn draw_queued_with_transform<F :Facade + Deref<Target = Context>>(&mut self, transform :[[f32; 4]; 4],  facade :&F, frame :&mut Frame) {
-		let screen_dims = facade.get_framebuffer_dimensions();
 		let mut brush_action;
 		loop {
 
@@ -323,9 +304,7 @@ impl<'font, 'p, H :BuildHasher> GlyphBrush<'font, 'p, H> {
 					|rect, tex_data| {
 						update_texture(tex, rect, tex_data);
 					},
-					|v| {
-						to_vertex(screen_dims, v)
-					},
+					to_vertex,
 				);
 			}
 			match brush_action {
