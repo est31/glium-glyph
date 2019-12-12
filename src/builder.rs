@@ -164,8 +164,8 @@ impl<'a, 'b, H: BuildHasher> GlyphBrushBuilder<'a, 'b, H> {
 
     /// Builds a `GlyphBrush` using the input glium facade
     pub fn build<F: Facade>(self, facade: &F) -> GlyphBrush<'a, 'b, H> {
-        let (cache_width, cache_height) = self.inner.initial_cache_size;
         let glyph_brush = self.inner.build();
+        let (cache_width, cache_height) = glyph_brush.texture_dimensions();
 
         static VERTEX_SHADER: &str = include_str!("shader/vert.glsl");
         static FRAGMENT_SHADER: &str = include_str!("shader/frag.glsl");
