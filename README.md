@@ -1,8 +1,8 @@
-## glium-brush
+## glium-glyph
 
-[![docs](https://docs.rs/glium-brush/badge.svg)](https://docs.rs/crate/glium-brush)
-[![crates.io](https://img.shields.io/crates/v/glium-brush.svg)](https://crates.io/crates/glium-brush)
-[![dependency status](https://deps.rs/repo/github/est31/glium-brush/status.svg)](https://deps.rs/repo/github/est31/glium-brush)
+[![docs](https://docs.rs/glium-glyph/badge.svg)](https://docs.rs/crate/glium-glyph)
+[![crates.io](https://img.shields.io/crates/v/glium-glyph.svg)](https://crates.io/crates/glium-glyph)
+[![dependency status](https://deps.rs/repo/github/est31/glium-glyph/status.svg)](https://deps.rs/repo/github/est31/glium-brush)
 
 [Glium](https://github.com/glium/glium) frontend for the [glyph-brush](https://github.com/alexheretic/glyph-brush) text renderer.
 
