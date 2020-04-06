@@ -10,6 +10,6 @@ It bases on the [gfx_glyph](https://crates.io/crates/gfx_glyph) crate. While it 
 
 TODO:
 
-* examples and docs are sitll about the gfx-brush crate
+* examples and docs are still about the gfx-brush crate
 * mode for crisp text rendering (exposing texture interpolation commands send to glium)
 * mode for crisp text rendering (making rusttype [not "alias"](https://gitlab.redox-os.org/redox-os/rusttype/issues/61), might need changes in glyph-brush)
