@@ -8,7 +8,7 @@ use glium_glyph::glyph_brush::{rusttype::Font, Section};
 use glium_glyph::GlyphBrush;
 
 use glutin::event::{Event, WindowEvent};
-use glutin::event_loop::{EventLoop, ControlFlow};
+use glutin::event_loop::{ControlFlow, EventLoop};
 
 pub fn main() {
     let event_loop = EventLoop::new();
@@ -29,7 +29,7 @@ pub fn main() {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => {
                     *control_flow = ControlFlow::Exit;
-                },
+                }
                 _ => (),
             },
             _ => (),
