@@ -233,10 +233,10 @@ impl<'font, 'p, H: BuildHasher> GlyphBrush<'font, 'p, H> {
     	*/
 
     #[inline]
-    pub fn draw_queued<F: Facade + Deref<Target = Context>>(
+    pub fn draw_queued<F: Facade + Deref<Target = Context>, S: Surface>(
         &mut self,
         facade: &F,
-        frame: &mut Frame,
+        surface: &mut S,
     ) {
         let dims = facade.get_framebuffer_dimensions();
         let transform = [
@@ -245,7 +245,7 @@ impl<'font, 'p, H: BuildHasher> GlyphBrush<'font, 'p, H> {
             [0.0, 0.0, 1.0, 0.0],
             [-1.0, -1.0, 0.0, 1.0],
         ];
-        self.draw_queued_with_transform(transform, facade, frame)
+        self.draw_queued_with_transform(transform, facade, surface)
     }
 
     /*
@@ -297,11 +297,11 @@ impl<'font, 'p, H: BuildHasher> GlyphBrush<'font, 'p, H> {
     /// ```
     	*/
 
-    pub fn draw_queued_with_transform<F: Facade + Deref<Target = Context>>(
+    pub fn draw_queued_with_transform<F: Facade + Deref<Target = Context>, S: Surface>(
         &mut self,
         transform: [[f32; 4]; 4],
         facade: &F,
-        frame: &mut Frame,
+        surface: &mut S,
     ) {
         let mut brush_action;
         loop {
@@ -349,7 +349,7 @@ impl<'font, 'p, H: BuildHasher> GlyphBrush<'font, 'p, H> {
         };
 
         // drawing a frame
-        frame
+        surface
             .draw(
                 (&self.instances, self.vertex_buffer.per_instance().unwrap()),
                 &self.index_buffer,
