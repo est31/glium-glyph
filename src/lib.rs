@@ -15,7 +15,7 @@ use glium::backend::{Context, Facade};
 use glium::index::PrimitiveType;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{ClientFormat, RawImage2d};
-use glium::{Frame, Program, Surface};
+use glium::{Program, Surface};
 
 use glyph_brush::rusttype::{Rect, SharedBytes};
 use glyph_brush::{
