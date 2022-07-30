@@ -15,5 +15,5 @@ glium = { version = "0.31", default-features = false }
 glyph_brush = "0.6"
 
 [dev-dependencies]
-glium = "0.31"
+glium = "0.32"
 #glium = { path = "../glium" }
