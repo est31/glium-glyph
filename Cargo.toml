@@ -1,7 +1,6 @@
 [package]
 name = "glium-glyph"
-version = "0.13.0"
-authors = ["est31 <MTest31@outlook.com>"]
+version = "0.14.0"
 readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/est31/glium-glyph"
