@@ -9,10 +9,10 @@ documentation = "https://docs.rs/glium-glyph"
 exclude = ["fonts/**"]
 
 [dependencies]
-glium = { version = "0.32", default-features = false }
+glium = { version = "0.36", default-features = false }
 #glium = { path = "../glium", default-features = false }
 glyph_brush = "0.7"
 
 [dev-dependencies]
-glium = "0.32"
+glium = "0.36"
 #glium = { path = "../glium" }
